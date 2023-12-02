@@ -25,9 +25,10 @@ else
   echo "Updating EPG source..."
   cd $BUILD_DIR/epg
   git checkout package-lock.json
-  git stash save
+  CHANGED=$(git diff)
+  [ -n "$CHANGED" ] && git stash save
   git pull
-  git stash apply
+  [ -n "$CHANGED" ] && git stash apply
 fi
 
 echo "Updating npm modules..."
@@ -41,6 +42,7 @@ GUIDE_DIR=$(basename $OUT_DIR)
 echo "Loading EPG api..."
 npm run api:load
 
+echo "--- $(date) ---"
 for SITE in $SITES; do
   GUIDE_XML=$GUIDE_DIR/$SITE.xml
   CNT=0
