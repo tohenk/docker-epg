@@ -60,5 +60,16 @@ for SITE in $SITES; do
     npm run grab -- --site=$SITE --output=$GUIDE_XML 1>~/$SITE.log 2>&1 &
   fi
 done
+if [ -f "$(dirname $0)/channels.xml" ]; then
+  if [ ! -d curated ]; then
+    mkdir curated
+    if [ ! -h curated/channels.xml ]; then
+      ln -s $(dirname $0)/channels.xml curated/channels.xml
+    fi
+  fi
+  echo "Building guide for curated channels..."
+  GUIDE_XML=$GUIDE_DIR/curated.xml
+  npm run grab -- --channels=curated/channels.xml --output=$GUIDE_XML 1>~/$SITE.log 2>&1 &
+fi
 
 rm -f $LOCK_FILE
