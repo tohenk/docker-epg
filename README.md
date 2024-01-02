@@ -44,6 +44,20 @@ The steps is described as follows:
   SITES="firstmedia.com indihometv.com mncvision.id vidio.com visionplus.id"
   ```
 
+* A curated channels can be provided if necessary.
+
+  ```sh
+  $ vi cron/channels.xml
+  ```
+
+  ```xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <channels>
+    <channel site="playtv.unifi.com.my" lang="en" xmltv_id="MoonbugKids.uk" site_id="59924306">Moonbug</channel>
+    <channel site="mytvsuper.com" lang="en" xmltv_id="ChineseDrama.hk" site_id="CDR3">Chinese Drama</channel>
+  </channels>
+  ```
+
 * If necessary, you can customize CRON job. By default it will build EPG once, then every 00:05.
 
   ```sh
@@ -71,6 +85,7 @@ The steps is described as follows:
   deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main
   debconf: delaying package configuration, since apt-utils is not installed
   SCHEDULER_ENV is not set, using prod
+  dos2unix: converting file /cron/channels.xml to Unix format...
   dos2unix: converting file /cron/crontab.prod to Unix format...
   dos2unix: converting file /cron/epg.sh to Unix format...
   dos2unix: converting file /cron/guides.sh to Unix format...
@@ -93,11 +108,26 @@ The steps is described as follows:
   > api:load
   > npx tsx scripts/commands/api/load.ts
 
+  --- Tue Nov 21 15:14:34 WIB 2023 ---
   Building guide for firstmedia.com...
   Building guide for indihometv.com...
   Building guide for mncvision.id (id)...
   Building guide for vidio.com...
   Building guide for visionplus.id...
+  Building guide for curated channels...
   ```
+
 * Once build completed, head to http://your-docker-ip/guides to view the guides.
   If you wish to change the path, edit [NGINX default configuration](/templates/default.conf.template).
+
+* A build log for each site can be viewed by `exec`-ing into container.
+
+  ```sh
+  $ sudo docker exec -it epg-cron /bin/bash
+  $ su epg
+  $ ls ~
+  ```
+
+  ```
+  epg.log  firstmedia.com.log  indihometv.com.log  mncvision.id.log  vidio.com.log  visionplus.id.log
+  ```
