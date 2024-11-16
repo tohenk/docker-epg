@@ -1,9 +1,10 @@
 #!/bin/bash
 
-. $(dirname $0)/guides.sh
+. $(dirname $0)/epg.var
+. $(dirname $0)/guides.var
 
 BUILD_DIR=/build
-OUT_DIR=$BUILD_DIR/guides
+OUT_DIR=$BUILD_DIR/$EPG_GUIDES_DIR
 LOCK_FILE=$BUILD_DIR/.lock
 ONCE_FILE=$BUILD_DIR/.once
 

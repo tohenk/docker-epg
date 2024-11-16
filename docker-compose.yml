@@ -7,99 +7,27 @@ services:
       - /bin/bash
       - '-c'
       - |
-        USER=epg
-        CRON_DIR=/cron
-        RETRY=1
-
-        set_timezone() {
-          ln -sf /usr/share/zoneinfo/$${APP_TIMEZONE} /etc/localtime
-          dpkg-reconfigure -f noninteractive tzdata
-        }
-
-        apt_mirror() {
-          [ -n "${APT_MIRROR}" ] && {
-            [ -f /etc/apt/sources.list.d/debian.sources ] && sed -i -e "s/deb.debian.org/${APT_MIRROR}/g" /etc/apt/sources.list.d/debian.sources
-          }
-        }
-
-        apt_updates() {
-          for i in {1..$$RETRY}; do
-            apt-get update>/dev/null
-          done
-        }
-
-        apt_install() {
-          for i in {1..$$RETRY}; do
-            apt-get install -y $$@>/dev/null
-          done
-        }
-
-        setup_nodejs() {
-          NODE_MAJOR=${NODE_VERSION}
-          [ -z "$${NODE_MAJOR}" ] && NODE_MAJOR=20
-          mkdir -p /etc/apt/keyrings
-          curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-          echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
-          apt_updates
-          apt_install nodejs
-          npm install -g npm>/dev/null
-        }
-
-        clean_lock() {
-          for LOCK in .lock .once; do
-            [ -f "/build/$$LOCK" ] && {
-              echo "Cleaning /build/$$LOCK..."
-              rm -f /build/$$LOCK
-            }
-          done
-        }
-
-        view_log() {
-          sleep 40
-          tail -F /home/$$USER/epg.log
-        }
-
-        adduser --disabled-password --gecos $$USER --quiet $$USER
-
-        # initialization
-        set_timezone
-        apt_mirror
-        apt_updates
-        apt_install dos2unix curl cron git ca-certificates gnupg
-        setup_nodejs
-        clean_lock
-
-        # https://levelup.gitconnected.com/cron-docker-the-easiest-job-scheduler-youll-ever-create-e1753eb5ea44
-        if [ -z "$$SCHEDULER_ENV" ]; then
-          echo "SCHEDULER_ENV is not set, using prod"
-          SCHEDULER_ENV="prod"
-        fi
-
-        # change owner of build directory to epg user
-        chown $$USER /build
-
-        # Fixup line ending and permissions
-        dos2unix $$CRON_DIR/*
-        find $$CRON_DIR -type f -name '*.sh' -exec chmod +x {} \; -exec chown $$USER {} \;
-
-        # Select the crontab file based on the environment
-        CRON_FILE="$$CRON_DIR/crontab.$$SCHEDULER_ENV"
-        echo "Loading crontab file: $$CRON_FILE"
-
-        # Load the crontab file
-        crontab -u $$USER $$CRON_FILE
-
-        # show logs
-        view_log &
-
-        # Start cron
+        export CRON_USER=epg
+        export CRON_DIR=/cron
+        export TARGET_DIR=$${CRON_DIR}
+        export VAR_FILE_PATTERN=/scripts/*.var
+        export APT_PACKAGES=git
+        adduser --disabled-password --gecos $$CRON_USER --quiet $$CRON_USER
+        # run initialization
+        run-script.sh timezone genvar apt nodejs cron cleanlock setowner +viewlog
+        # start cron
         echo "Starting cron..."
         cron -f -L 15
     environment:
       APP_TIMEZONE: ${APP_TIMEZONE}
+      APP_GUIDES_DIR: ${APP_GUIDES_DIR}
+      APT_MIRROR: ${APT_MIRROR}
+      NODE_VERSION: ${NODE_VERSION}
     volumes:
-      - ./cron:/cron
+      - ./bin/run-script.sh:/usr/local/bin/run-script.sh
       - ./build:/build
+      - ./cron:/cron
+      - ./scripts:/scripts
   nginx:
     image: nginx
     container_name: ${APP_NAME}-web
@@ -108,16 +36,17 @@ services:
       - /bin/bash
       - '-c'
       - |
-        set_timezone() {
-          ln -sf /usr/share/zoneinfo/${APP_TIMEZONE} /etc/localtime
-          dpkg-reconfigure -f noninteractive tzdata
-        }
-        set_timezone
-        ./docker-entrypoint.sh nginx -g "daemon off;"
+        # run initialization
+        run-script.sh timezone
+        # run entrypoint
+        /docker-entrypoint.sh nginx -g "daemon off;"
     ports:
       - ${APP_HTTP_PORT}:80
     environment:
       APP_TIMEZONE: ${APP_TIMEZONE}
+      APP_GUIDES_DIR: ${APP_GUIDES_DIR}
     volumes:
+      - ./bin/run-script.sh:/usr/local/bin/run-script.sh
       - ./build:/build
+      - ./scripts:/scripts
       - ./templates:/etc/nginx/templates

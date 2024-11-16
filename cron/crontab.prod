@@ -1,2 +1,2 @@
 * * * * * /cron/epg.sh oneshot 2>&1 | tee -a ~/epg.log
-5 0 * * * /cron/epg.sh 2>&1 | tee -a ~/epg.log
+1 0 * * * /cron/epg.sh 2>&1 | tee -a ~/epg.log
