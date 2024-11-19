@@ -45,20 +45,34 @@ npm run api:load
 
 echo "--- $(date) ---"
 for SITE in $SITES; do
+  CONN=1
+  IFS=':' read -ra ARR <<< "$SITE"
+  if [ ${#ARR[@]} -gt 1 ]; then
+    SITE=${ARR[0]}
+    CONN=${ARR[1]}
+  fi
   GUIDE_XML=$GUIDE_DIR/$SITE.xml
   CNT=0
   # build guide use configured language
   for LANG in $LANGS; do
     if [ -f sites/$SITE/${SITE}_$LANG.channels.xml ]; then
       echo "Building guide for $SITE ($LANG)..."
-      npm run grab -- --site=$SITE --lang=$LANG --output=$GUIDE_XML 1>~/$SITE.log 2>&1 &
+      if [ $CONN -gt 1 ]; then
+        npm run grab -- --site=$SITE --lang=$LANG --output=$GUIDE_XML --maxConnections=$CONN 1>~/$SITE.log 2>&1 &
+      else
+        npm run grab -- --site=$SITE --lang=$LANG --output=$GUIDE_XML 1>~/$SITE.log 2>&1 &
+      fi
       CNT=$((CNT+1))
     fi
   done
   # no guide for configured language, use default
   if [ $CNT -eq 0 ]; then
     echo "Building guide for $SITE..."
-    npm run grab -- --site=$SITE --output=$GUIDE_XML 1>~/$SITE.log 2>&1 &
+    if [ $CONN -gt 1 ]; then
+      npm run grab -- --site=$SITE --output=$GUIDE_XML --maxConnections=$CONN 1>~/$SITE.log 2>&1 &
+    else
+      npm run grab -- --site=$SITE --output=$GUIDE_XML 1>~/$SITE.log 2>&1 &
+    fi
   fi
 done
 if [ -f "$(dirname $0)/channels.xml" ]; then

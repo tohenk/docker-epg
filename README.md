@@ -45,6 +45,9 @@ The steps is described as follows:
   SITES="firstmedia.com indihometv.com mncvision.id vidio.com visionplus.id"
   ```
 
+  The number of connections for fetching the site can be specified by appending the number delimited by `:`,
+  e.g. `mncvision.id:5` will use max connections of 5.
+
 * A curated channels can be provided if necessary.
 
   ```sh
