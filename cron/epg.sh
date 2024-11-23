@@ -6,12 +6,17 @@
 BUILD_DIR=/build
 OUT_DIR=$BUILD_DIR/$EPG_GUIDES_DIR
 LOCK_FILE=$BUILD_DIR/.lock
+RUN_FILE=$BUILD_DIR/.run
 ONCE_FILE=$BUILD_DIR/.once
 
 [ -f $LOCK_FILE ] && exit
-if [ "x-$1" = "x-oneshot" ]; then
-  [ -f $ONCE_FILE ] && exit
-  touch $ONCE_FILE
+if [ "x$1" = "xauto" ]; then
+  if [ -f $RUN_FILE ]; then
+    rm -f $RUN_FILE
+  else
+    [ -f $ONCE_FILE ] && exit
+    touch $ONCE_FILE
+  fi
 fi
 
 echo "=== `basename $0` ==="

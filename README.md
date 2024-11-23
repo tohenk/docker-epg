@@ -69,7 +69,7 @@ The steps is described as follows:
   ```
 
   ```
-  * * * * * /cron/epg.sh oneshot 2>&1 | tee -a ~/epg.log
+  * * * * * /cron/epg.sh auto 2>&1 | tee -a ~/epg.log
   1 0 * * * /cron/epg.sh 2>&1 | tee -a ~/epg.log
   ```
 
@@ -156,7 +156,7 @@ The steps is described as follows:
   Building guide for curated channels...
   ```
 
-* Once build completed, head to http://your-docker-ip/guides to view the guides.
+* Once build completed, head to http://your-docker-ip/guides/ to view the guides.
 
 * A build log for each site can be viewed by `exec`-ing into container.
 
@@ -168,4 +168,10 @@ The steps is described as follows:
 
   ```
   epg.log  firstmedia.com.log  indihometv.com.log  mncvision.id.log  vidio.com.log  visionplus.id.log
+  ```
+
+* To build EPG on demand, create an empty `.run` file in `build` folder.
+
+  ```sh
+  touch ./build/.run
   ```
