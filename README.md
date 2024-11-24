@@ -35,6 +35,7 @@ The steps is described as follows:
   ```
 
 * Includes which sites and language to build, see https://github.com/iptv-org/epg/blob/master/SITES.md.
+  If you include curated channels, adjust the days for those channels to fetch.
 
   ```sh
   vi cron/guides.var
@@ -43,6 +44,7 @@ The steps is described as follows:
   ```sh
   LANGS="id"
   SITES="firstmedia.com indihometv.com mncvision.id vidio.com visionplus.id"
+  CURATED_DAYS="2"
   ```
 
   The number of connections for fetching the site can be specified by appending the number delimited by `:`,

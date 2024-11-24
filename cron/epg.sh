@@ -89,7 +89,8 @@ if [ -f "$(dirname $0)/channels.xml" ]; then
   fi
   echo "Building guide for curated channels..."
   GUIDE_XML=$GUIDE_DIR/curated.xml
-  npm run grab -- --channels=curated/channels.xml --output=$GUIDE_XML --days=2 1>~/curated.log 2>&1 &
+  DAYS=${CURATED_DAYS:-2}
+  npm run grab -- --channels=curated/channels.xml --output=$GUIDE_XML --days=$DAYS 1>~/curated.log 2>&1 &
 fi
 
 rm -f $LOCK_FILE
