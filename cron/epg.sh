@@ -1,7 +1,7 @@
 #!/bin/bash
 
-. $(dirname $0)/epg.var
-. $(dirname $0)/guides.var
+. $(dirname $0)/epg.env
+. $(dirname $0)/guides.env
 
 BUILD_DIR=/build
 OUT_DIR=$BUILD_DIR/$EPG_GUIDES_DIR

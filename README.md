@@ -38,7 +38,7 @@ The steps is described as follows:
   If you include curated channels, adjust the days for those channels to fetch.
 
   ```sh
-  vi cron/guides.var
+  vi cron/guides.env
   ```
 
   ```sh
@@ -86,10 +86,10 @@ The steps is described as follows:
   --- timezone.sh ---
 
   Current default time zone: 'Asia/Jakarta'
-  Local time is now:      Sat Nov 16 15:56:08 WIB 2024.
-  Universal Time is now:  Sat Nov 16 08:56:08 UTC 2024.
+  Local time is now:      Mon Nov 25 19:37:42 WIB 2024.
+  Universal Time is now:  Mon Nov 25 12:37:42 UTC 2024.
 
-  --- genvar.sh ---
+  --- genenv.sh ---
   --- apt.sh ---
   debconf: delaying package configuration, since apt-utils is not installed
   --- nodejs.sh ---
@@ -99,13 +99,12 @@ The steps is described as follows:
   debconf: delaying package configuration, since apt-utils is not installed
   dos2unix: converting file /cron/channels.xml to Unix format...
   dos2unix: converting file /cron/crontab.prod to Unix format...
+  dos2unix: converting file /cron/epg.env to Unix format...
   dos2unix: converting file /cron/epg.sh to Unix format...
-  dos2unix: converting file /cron/epg.var to Unix format...
-  dos2unix: converting file /cron/guides.var to Unix format...
+  dos2unix: converting file /cron/guides.env to Unix format...
   SCHEDULER_ENV is not set, using prod
   Loading crontab file: /cron/crontab.prod
   --- cleanlock.sh ---
-  Cleaning /build/.once...
   --- setowner.sh ---
   --- viewlog.sh ---
   Starting cron...
@@ -122,9 +121,9 @@ The steps is described as follows:
   npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
   npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
   npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+  npm warn deprecated gauge@3.0.2: This package is no longer supported.
   npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
   npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
-  npm warn deprecated gauge@3.0.2: This package is no longer supported.
   npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
 
   added 719 packages, and audited 720 packages in 2m
@@ -139,9 +138,9 @@ The steps is described as follows:
 
   Run `npm audit` for details.
   npm notice
-  npm notice New minor version of npm available! 10.8.2 -> 10.9.0
-  npm notice Changelog: https://github.com/npm/cli/releases/tag/v10.9.0
-  npm notice To update run: npm install -g npm@10.9.0
+  npm notice New minor version of npm available! 10.8.2 -> 10.9.1
+  npm notice Changelog: https://github.com/npm/cli/releases/tag/v10.9.1
+  npm notice To update run: npm install -g npm@10.9.1
   npm notice
   Preparing directory...
   Loading EPG api...
@@ -149,7 +148,7 @@ The steps is described as follows:
   > api:load
   > npx tsx scripts/commands/api/load.ts
 
-  --- Sat Nov 16 16:01:03 WIB 2024 ---
+  --- Mon Nov 25 19:42:38 WIB 2024 ---
   Building guide for firstmedia.com...
   Building guide for indihometv.com...
   Building guide for mncvision.id (id)...
