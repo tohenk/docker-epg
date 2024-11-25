@@ -5,6 +5,20 @@ A media player like [KODI](https://kodi.tv) can use Electronic Program Guide
 download those EPG available at https://github.com/iptv-org/epg. This Docker
 Compose can be used to automate those task.
 
+## Features
+
+* Automatically sync repository on every EPG build
+
+* Your local changes to repository is stashed on EPG build and then re-applied
+
+* Configurable languages, sites, and max connections
+
+* Schedule EPG build as you need using CRON
+
+* Curated channels
+
+* On demand EPG build
+
 ## Usage
 
 The steps is described as follows:
@@ -18,8 +32,8 @@ The steps is described as follows:
   ```
 
 * Adjust `.env` as you need, you can change the web server port, customize NGINX guides path,
-  provide your time zone,  choose the Debian mirror to close as possible to your location,
-  and choose which Node major version to use.
+  provide your time zone,  choose the [Debian mirror](https://www.debian.org/mirror/list) to
+  close as possible to your location, and choose which Node major version to use.
 
   ```sh
   vi .env
