@@ -19,6 +19,28 @@ if [ "x$1" = "xauto" ]; then
   fi
 fi
 
+watch_completion() {
+  SITE=$1
+  LOG=$2
+  TMO=$3
+  [ -z "$TMO" ] && TMO=${WATCH_TIMEOUT:-3600}
+  START=$(date +%s)
+  while true; do
+    sleep 1
+    if [ -f $LOG ]; then
+      LINE=$(echo "`tail -n 1 $LOG | grep 'done in'`" | xargs)
+      if [ -n "$LINE" ]; then
+        echo "Site $SITE: $LINE"
+        break
+      fi
+    fi
+    D=$(($(date +%s)-$START))
+    if [ $D -gt $TMO ]; then
+      break
+    fi
+  done
+}
+
 echo "=== `basename $0` ==="
 
 touch $LOCK_FILE
@@ -67,6 +89,7 @@ for SITE in $SITES; do
       else
         npm run grab -- --site=$SITE --lang=$LANG --output=$GUIDE_XML 1>~/$SITE.log 2>&1 &
       fi
+      watch_completion $SITE ~/$SITE.log &
       CNT=$((CNT+1))
     fi
   done
@@ -78,19 +101,22 @@ for SITE in $SITES; do
     else
       npm run grab -- --site=$SITE --output=$GUIDE_XML 1>~/$SITE.log 2>&1 &
     fi
+    watch_completion $SITE ~/$SITE.log &
   fi
 done
 if [ -f "$(dirname $0)/channels.xml" ]; then
-  if [ ! -d curated ]; then
-    mkdir curated
-    if [ ! -h curated/channels.xml ]; then
-      ln -s $(dirname $0)/channels.xml curated/channels.xml
+  SITE=curated
+  if [ ! -d $SITE ]; then
+    mkdir $SITE
+    if [ ! -h $SITE/channels.xml ]; then
+      ln -s $(dirname $0)/channels.xml $SITE/channels.xml
     fi
   fi
-  echo "Building guide for curated channels..."
-  GUIDE_XML=$GUIDE_DIR/curated.xml
+  echo "Building guide for $SITE channels..."
+  GUIDE_XML=$GUIDE_DIR/$SITE.xml
   DAYS=${CURATED_DAYS:-2}
-  npm run grab -- --channels=curated/channels.xml --output=$GUIDE_XML --days=$DAYS 1>~/curated.log 2>&1 &
+  npm run grab -- --channels=$SITE/channels.xml --output=$GUIDE_XML --days=$DAYS 1>~/$SITE.log 2>&1 &
+  watch_completion $SITE ~/$SITE.log &
 fi
 
 rm -f $LOCK_FILE
