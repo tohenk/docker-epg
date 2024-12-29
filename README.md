@@ -5,6 +5,10 @@ A media player like [KODI](https://kodi.tv) can use Electronic Program Guide
 download those EPG available at https://github.com/iptv-org/epg. This Docker
 Compose can be used to automate those task.
 
+This docker compose created with concept of `plug and forget`, once the configuration
+is satisfied, start docker compose then forget it. The guide will always be built
+based on latest fix available on EPG site.
+
 ## Features
 
 * Automatically sync repository on every EPG build
@@ -32,7 +36,7 @@ The steps is described as follows:
   ```
 
 * Adjust `.env` as you need, you can change the web server port, customize NGINX guides path,
-  provide your time zone,  choose the [Debian mirror](https://www.debian.org/mirror/list) to
+  provide your time zone, choose the [Debian mirror](https://www.debian.org/mirror/list) to
   close as possible to your location, and choose which Node major version to use.
 
   ```sh
@@ -45,7 +49,7 @@ The steps is described as follows:
   APP_GUIDES_DIR=guides
   APP_TIMEZONE=Asia/Jakarta
   APT_MIRROR=kartolo.sby.datautama.net.id
-  NODE_VERSION=20
+  NODE_VERSION=22
   ```
 
 * Includes which sites and language to build, see https://github.com/iptv-org/epg/blob/master/SITES.md.
@@ -73,8 +77,7 @@ The steps is described as follows:
   ```xml
   <?xml version="1.0" encoding="UTF-8"?>
   <channels>
-    <channel site="playtv.unifi.com.my" lang="en" xmltv_id="MoonbugKids.uk" site_id="59924306">Moonbug</channel>
-    <channel site="mytvsuper.com" lang="en" xmltv_id="ChineseDrama.hk" site_id="CDR3">Chinese Drama</channel>
+    <channel site="cubmu.com" lang="id" xmltv_id="BioskopIndonesia.id" site_id="4028c68574537fcd0174be26e4325724">Bioskop Indonesia</channel>
   </channels>
   ```
 
@@ -100,8 +103,8 @@ The steps is described as follows:
   --- timezone.sh ---
 
   Current default time zone: 'Asia/Jakarta'
-  Local time is now:      Mon Nov 25 19:37:42 WIB 2024.
-  Universal Time is now:  Mon Nov 25 12:37:42 UTC 2024.
+  Local time is now:      Sun Dec 29 16:55:44 WIB 2024.
+  Universal Time is now:  Sun Dec 29 09:55:44 UTC 2024.
 
   --- genenv.sh ---
   --- apt.sh ---
@@ -122,39 +125,34 @@ The steps is described as follows:
   --- setowner.sh ---
   --- viewlog.sh ---
   Starting cron...
+  tail: cannot open '/home/epg/epg.log' for reading: No such file or directory
+  tail: '/home/epg/epg.log' has appeared;  following new file
   === epg.sh ===
   Cloning EPG source...
   Cloning into 'epg'...
-  Updating files: 100% (1201/1201), done.
+  Updating files: 100% (1253/1253), done.
   Updating npm modules...
-  npm warn deprecated are-we-there-yet@2.0.0: This package is no longer supported.
-  npm warn deprecated npmlog@5.0.1: This package is no longer supported.
   npm warn deprecated q@1.5.1: You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
   npm warn deprecated
   npm warn deprecated (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
   npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-  npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
-  npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
-  npm warn deprecated gauge@3.0.2: This package is no longer supported.
-  npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
   npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
-  npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
 
-  added 719 packages, and audited 720 packages in 2m
+  added 765 packages, and audited 766 packages in 2m
 
-  134 packages are looking for funding
+  137 packages are looking for funding
     run `npm fund` for details
 
-  1 high severity vulnerability
+  1 critical severity vulnerability
 
-  To address all issues (including breaking changes), run:
-    npm audit fix --force
+  Some issues need review, and may require choosing
+  a different dependency.
 
   Run `npm audit` for details.
   npm notice
-  npm notice New minor version of npm available! 10.8.2 -> 10.9.1
-  npm notice Changelog: https://github.com/npm/cli/releases/tag/v10.9.1
-  npm notice To update run: npm install -g npm@10.9.1
+  npm notice New major version of npm available! 10.9.0 -> 11.0.0
+  npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.0.0
+  npm notice To update run: npm install -g npm@11.0.0
   npm notice
   Preparing directory...
   Loading EPG api...
@@ -162,13 +160,19 @@ The steps is described as follows:
   > api:load
   > npx tsx scripts/commands/api/load.ts
 
-  --- Mon Nov 25 19:42:38 WIB 2024 ---
+  --- Sun Dec 29 17:01:00 WIB 2024 ---
   Building guide for firstmedia.com...
   Building guide for indihometv.com...
   Building guide for mncvision.id (id)...
   Building guide for vidio.com...
-  Building guide for visionplus.id...
+  Building guide for visionplus.id (id)...
   Building guide for curated channels...
+  Site curated: done in 00h 00m 04s
+  Site visionplus.id: done in 00h 00m 42s
+  Site vidio.com: done in 00h 00m 57s
+  Site firstmedia.com: done in 00h 01m 32s
+  Site indihometv.com: done in 00h 02m 40s
+  Site mncvision.id: done in 00h 08m 27s
   ```
 
 * Once build completed, head to http://your-docker-ip/guides/ to view the guides.
