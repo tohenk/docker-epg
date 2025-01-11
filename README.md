@@ -56,7 +56,7 @@ The steps is described as follows:
   If you include curated channels, adjust the days for those channels to fetch.
 
   ```sh
-  vi cron/guides.env
+  vi config/guides.env
   ```
 
   ```sh
@@ -71,7 +71,7 @@ The steps is described as follows:
 * A curated channels can be provided if necessary.
 
   ```sh
-  vi cron/channels.xml
+  vi config/channels.xml
   ```
 
   ```xml
@@ -81,7 +81,7 @@ The steps is described as follows:
   </channels>
   ```
 
-* If necessary, you can customize CRON job. By default it will build EPG once, then every 00:01.
+* If necessary, you can customize CRON job. By default it will build EPG once, then every 00:00.
 
   ```sh
   vi cron/crontab.prod
@@ -89,7 +89,7 @@ The steps is described as follows:
 
   ```
   * * * * * /cron/epg.sh auto 2>&1 | tee -a ~/epg.log
-  1 0 * * * /cron/epg.sh 2>&1 | tee -a ~/epg.log
+  0 0 * * * /cron/epg.sh 2>&1 | tee -a ~/epg.log
   ```
 
 * Start the container, if you need to view the console output use `docker logs`.
@@ -112,13 +112,14 @@ The steps is described as follows:
   --- nodejs.sh ---
   debconf: delaying package configuration, since apt-utils is not installed
   debconf: delaying package configuration, since apt-utils is not installed
-  --- cron.sh ---
-  debconf: delaying package configuration, since apt-utils is not installed
-  dos2unix: converting file /cron/channels.xml to Unix format...
+  --- lineending.sh ---
   dos2unix: converting file /cron/crontab.prod to Unix format...
   dos2unix: converting file /cron/epg.env to Unix format...
   dos2unix: converting file /cron/epg.sh to Unix format...
-  dos2unix: converting file /cron/guides.env to Unix format...
+  dos2unix: converting file /config/channels.xml to Unix format...
+  dos2unix: converting file /config/guides.env to Unix format...
+  --- cron.sh ---
+  debconf: delaying package configuration, since apt-utils is not installed
   SCHEDULER_ENV is not set, using prod
   Loading crontab file: /cron/crontab.prod
   --- cleanlock.sh ---

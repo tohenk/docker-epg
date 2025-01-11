@@ -11,10 +11,10 @@ services:
         export CRON_DIR=/cron
         export TARGET_DIR=$${CRON_DIR}
         export ENV_FILE_PATTERN=/scripts/*.env
-        export APT_PACKAGES=git
+        export APT_PACKAGES="git dos2unix"
         adduser --disabled-password --gecos $$CRON_USER --quiet $$CRON_USER
         # run initialization
-        run-script.sh timezone genenv apt nodejs cron cleanlock setowner +viewlog
+        run-script.sh timezone genenv apt nodejs lineending cron cleanlock setowner +viewlog
         # start cron
         echo "Starting cron..."
         cron -f -L 15
@@ -26,6 +26,7 @@ services:
     volumes:
       - ./bin/run-script.sh:/usr/local/bin/run-script.sh
       - ./build:/build
+      - ./config:/config
       - ./cron:/cron
       - ./scripts:/scripts
   nginx:

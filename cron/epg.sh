@@ -1,13 +1,14 @@
 #!/bin/bash
 
 . $(dirname $0)/epg.env
-. $(dirname $0)/guides.env
+. /config/guides.env
 
 BUILD_DIR=/build
 OUT_DIR=$BUILD_DIR/$EPG_GUIDES_DIR
 LOCK_FILE=$BUILD_DIR/.lock
 RUN_FILE=$BUILD_DIR/.run
 ONCE_FILE=$BUILD_DIR/.once
+CURATED_FILE=/config/channels.xml
 
 [ -f $LOCK_FILE ] && exit
 if [ "x$1" = "xauto" ]; then
@@ -22,8 +23,8 @@ fi
 watch_completion() {
   SITE=$1
   LOG=$2
-  TMO=$3
-  [ -z "$TMO" ] && TMO=${WATCH_TIMEOUT:-3600}
+  TIMEOUT=$3
+  [ -z "$TIMEOUT" ] && TIMEOUT=${WATCH_TIMEOUT:-3600}
   START=$(date +%s)
   while true; do
     sleep 1
@@ -34,11 +35,41 @@ watch_completion() {
         break
       fi
     fi
-    D=$(($(date +%s)-$START))
-    if [ $D -gt $TMO ]; then
+    DELTA=$(($(date +%s)-$START))
+    if [ $DELTA -gt $TIMEOUT ]; then
       break
     fi
   done
+}
+
+run_grab() {
+  OUT=$1
+  SITE=$2
+  LANG=$3
+  CONN=$4
+  DAYS=$5
+  POS=$((${#SITE}-4))
+  CMD="--output=$OUT"
+  if [ "${SITE:$POS:4}" = ".xml" ]; then
+    CMD="$CMD --channels=$SITE"
+    IFS='/' read -ra AA <<< "$SITE"
+    if [ ${#AA[@]} -gt 1 ]; then
+      SITE=${AA[0]}
+    fi
+  else
+    CMD="$CMD --site=$SITE"
+  fi
+  if [ -n "$LANG" -a "x$LANG" != "xNONE" ]; then
+    CMD="$CMD --lang=$LANG"
+  fi
+  if [ -n "$CONN" ]; then
+    [ $CONN -gt 1 ] && CMD="$CMD --maxConnections=$CONN"
+  fi
+  if [ -n "$DAYS" ]; then
+    [ $DAYS -gt 0 ] && CMD="$CMD --days=$DAYS"
+  fi
+  $(echo "npm run grab --- $CMD" | xargs) 1>~/$SITE.log 2>&1 &
+  watch_completion $SITE ~/$SITE.log &
 }
 
 echo "=== `basename $0` ==="
@@ -65,7 +96,7 @@ npm update
 echo "Preparing directory..."
 mkdir -p $OUT_DIR
 GUIDE_DIR=$(basename $OUT_DIR)
-[ ! -h "${GUIDE_DIR}" ] && ln -s ../${GUIDE_DIR} ${GUIDE_DIR}
+[ ! -h "$GUIDE_DIR" ] && ln -s ../$GUIDE_DIR $GUIDE_DIR
 
 echo "Loading EPG api..."
 npm run api:load
@@ -84,39 +115,28 @@ for SITE in $SITES; do
   for LANG in $LANGS; do
     if [ -f sites/$SITE/${SITE}_$LANG.channels.xml ]; then
       echo "Building guide for $SITE ($LANG)..."
-      if [ $CONN -gt 1 ]; then
-        npm run grab -- --site=$SITE --lang=$LANG --output=$GUIDE_XML --maxConnections=$CONN 1>~/$SITE.log 2>&1 &
-      else
-        npm run grab -- --site=$SITE --lang=$LANG --output=$GUIDE_XML 1>~/$SITE.log 2>&1 &
-      fi
-      watch_completion $SITE ~/$SITE.log &
+      run_grab $GUIDE_XML $SITE $LANG $CONN
       CNT=$((CNT+1))
     fi
   done
   # no guide for configured language, use default
   if [ $CNT -eq 0 ]; then
     echo "Building guide for $SITE..."
-    if [ $CONN -gt 1 ]; then
-      npm run grab -- --site=$SITE --output=$GUIDE_XML --maxConnections=$CONN 1>~/$SITE.log 2>&1 &
-    else
-      npm run grab -- --site=$SITE --output=$GUIDE_XML 1>~/$SITE.log 2>&1 &
-    fi
-    watch_completion $SITE ~/$SITE.log &
+    run_grab $GUIDE_XML $SITE NONE $CONN
   fi
 done
-if [ -f "$(dirname $0)/channels.xml" ]; then
+if [ -f "$CURATED_FILE" ]; then
   SITE=curated
-  if [ ! -d $SITE ]; then
-    mkdir $SITE
-    if [ ! -h $SITE/channels.xml ]; then
-      ln -s $(dirname $0)/channels.xml $SITE/channels.xml
-    fi
+  CHANNEL=$(basename $CURATED_FILE)
+  mkdir -p $SITE
+  if [ -h $SITE/$CHANNEL ]; then
+    rm -f $SITE/$CHANNEL
   fi
+  ln -s $CURATED_FILE $SITE/$CHANNEL
   echo "Building guide for $SITE channels..."
   GUIDE_XML=$GUIDE_DIR/$SITE.xml
   DAYS=${CURATED_DAYS:-2}
-  npm run grab -- --channels=$SITE/channels.xml --output=$GUIDE_XML --days=$DAYS 1>~/$SITE.log 2>&1 &
-  watch_completion $SITE ~/$SITE.log &
+  run_grab $GUIDE_XML $SITE/$CHANNEL NONE 1 $DAYS
 fi
 
 rm -f $LOCK_FILE
