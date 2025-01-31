@@ -35,9 +35,9 @@ The steps is described as follows:
   cd docker-epg
   ```
 
-* Adjust `.env` as you need, you can change the web server port, customize NGINX guides path,
-  provide your time zone, choose the [Debian mirror](https://www.debian.org/mirror/list) to
-  close as possible to your location, and choose which Node major version to use.
+* Adjust `.env` as you need, you can change the web server port, customize NGINX guides
+  path, provide your time zone, choose the [Debian mirror](https://www.debian.org/mirror/list)
+  to close as possible to your location, and choose which Node major version to use.
 
   ```sh
   vi .env
@@ -65,8 +65,8 @@ The steps is described as follows:
   CURATED_DAYS="2"
   ```
 
-  The number of connections for fetching the site can be specified by appending the number delimited by `:`,
-  e.g. `mncvision.id:5` will use max connections of 5.
+  The number of connections for fetching the site can be specified by appending the
+  number delimited by `:`, e.g. `mncvision.id:5` will use max connections of 5.
 
 * A curated channels can be provided if necessary.
 
@@ -80,6 +80,9 @@ The steps is described as follows:
     <channel site="cubmu.com" lang="id" xmltv_id="BioskopIndonesia.id" site_id="4028c68574537fcd0174be26e4325724">Bioskop Indonesia</channel>
   </channels>
   ```
+
+  More curated channels is supported, just drop the filename as `[alias].channels.xml`.
+  The `[alias]` would be any name of your choice, e.g. `my-fav-guide.channels.xml`.
 
 * If necessary, you can customize CRON job. By default it will build EPG once, then every 00:00.
 

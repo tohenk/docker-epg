@@ -8,7 +8,7 @@ OUT_DIR=$BUILD_DIR/$EPG_GUIDES_DIR
 LOCK_FILE=$BUILD_DIR/.lock
 RUN_FILE=$BUILD_DIR/.run
 ONCE_FILE=$BUILD_DIR/.once
-CURATED_FILE=/config/channels.xml
+CURATED_DIR=/config
 
 [ -f $LOCK_FILE ] && exit
 if [ "x$1" = "xauto" ]; then
@@ -125,18 +125,27 @@ for SITE in $SITES; do
     run_grab $GUIDE_XML $SITE NONE $CONN
   fi
 done
-if [ -f "$CURATED_FILE" ]; then
-  SITE=curated
-  CHANNEL=$(basename $CURATED_FILE)
-  mkdir -p $SITE
-  if [ -h $SITE/$CHANNEL ]; then
-    rm -f $SITE/$CHANNEL
+FILES=$(ls $CURATED_DIR | grep channels.xml)
+for FILE in $FILES; do
+  CURATED_FILE=$CURATED_DIR/$FILE
+  if [ -f "$CURATED_FILE" ]; then
+    LEN=${#FILE}
+    if [ $LEN -gt 13 ]; then
+      LEN=$((LEN-13))
+      SITE=${FILE:0:$LEN}
+    else
+      SITE=curated
+    fi
+    mkdir -p $SITE
+    if [ -h $SITE/$FILE ]; then
+      rm -f $SITE/$FILE
+    fi
+    ln -s $CURATED_FILE $SITE/$FILE
+    echo "Building guide for $SITE channels..."
+    GUIDE_XML=$GUIDE_DIR/$SITE.xml
+    DAYS=${CURATED_DAYS:-2}
+    run_grab $GUIDE_XML $SITE/$FILE NONE 1 $DAYS
   fi
-  ln -s $CURATED_FILE $SITE/$CHANNEL
-  echo "Building guide for $SITE channels..."
-  GUIDE_XML=$GUIDE_DIR/$SITE.xml
-  DAYS=${CURATED_DAYS:-2}
-  run_grab $GUIDE_XML $SITE/$CHANNEL NONE 1 $DAYS
-fi
+done
 
 rm -f $LOCK_FILE
