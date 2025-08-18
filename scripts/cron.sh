@@ -1,10 +1,8 @@
 #!/bin/bash
 
 LOG=/var/log/cron.log
-APT_OPTS="-o DPkg::Lock::Timeout=-1"
 
 if [ -n "$CRON_DIR" ]; then
-  apt-get install $APT_OPTS -y cron>>$LOG
   # fixup permissions
   find $CRON_DIR -type f -name '*.sh' -exec chmod +x {} \;
   # https://levelup.gitconnected.com/cron-docker-the-easiest-job-scheduler-youll-ever-create-e1753eb5ea44

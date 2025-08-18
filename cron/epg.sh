@@ -9,6 +9,7 @@ LOCK_FILE=$BUILD_DIR/.lock
 RUN_FILE=$BUILD_DIR/.run
 ONCE_FILE=$BUILD_DIR/.once
 CURATED_DIR=/config
+EPG_REPO=${EPG_REPO:-https://github.com/iptv-org/epg.git}
 
 [ -f $LOCK_FILE ] && exit
 if [ "x$1" = "xauto" ]; then
@@ -19,6 +20,8 @@ if [ "x$1" = "xauto" ]; then
     touch $ONCE_FILE
   fi
 fi
+
+[ $(id -u) -eq 0 ] && PREFIX="" || PREFIX="sudo"
 
 watch_completion() {
   SITE=$1
@@ -31,7 +34,7 @@ watch_completion() {
     if [ -f $LOG ]; then
       LINE=$(echo "`tail -n 1 $LOG | grep 'done in'`" | xargs)
       if [ -n "$LINE" ]; then
-        echo "Site $SITE: $LINE"
+        echo "Guide $SITE: $LINE"
         break
       fi
     fi
@@ -79,7 +82,7 @@ touch $LOCK_FILE
 cd $BUILD_DIR
 if [ ! -d $BUILD_DIR/epg ]; then
   echo "Cloning EPG source..."
-  git clone https://github.com/iptv-org/epg.git epg && cd $BUILD_DIR/epg
+  git clone $EPG_REPO epg && cd $BUILD_DIR/epg
 else
   echo "Updating EPG source..."
   cd $BUILD_DIR/epg
@@ -89,6 +92,11 @@ else
   git pull
   [ -n "$CHANGED" ] && git stash apply
 fi
+
+echo "Checking latest npm version..."
+VINSTALLED=$(npm --version)
+VLATEST=$(npm view npm version)
+[ "$VINSTALLED" != "$VLATEST" ] && $PREFIX npm install -g npm
 
 echo "Updating npm modules..."
 npm update

@@ -1,20 +1,22 @@
 services:
   cron:
-    image: debian:bookworm-slim
+    image: debian:${DEBIAN_VERSION}
     container_name: ${APP_NAME}-cron
     restart: unless-stopped
     command:
       - /bin/bash
       - '-c'
       - |
+        export DEBIAN_FRONTEND=noninteractive
         export CRON_USER=epg
         export CRON_DIR=/cron
         export TARGET_DIR=$${CRON_DIR}
         export ENV_FILE_PATTERN=/scripts/*.env
-        export APT_PACKAGES="git dos2unix"
-        adduser --disabled-password --gecos $$CRON_USER --quiet $$CRON_USER
+        export APT_CORE_PACKAGES="sudo ca-certificates curl gnupg"
+        export APT_PACKAGES="git dos2unix cron"
+        export X_USER=$$CRON_USER
         # run initialization
-        run-script.sh timezone genenv apt nodejs lineending cron cleanlock setowner +viewlog
+        run-script.sh timezone apt adduser apt-install genenv nodejs lineending cron cleanlock setowner +viewlog
         # start cron
         echo "Starting cron..."
         cron -f -L 15

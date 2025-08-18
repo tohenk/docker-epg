@@ -5,7 +5,6 @@ LOG=/var/log/nodejs.log
 # install nodejs
 APT_OPTS="-o DPkg::Lock::Timeout=-1"
 NODE_MAJOR=${NODE_VERSION:-22}
-apt-get install $APT_OPTS -y ca-certificates curl gnupg>>$LOG
 mkdir -p /etc/apt/keyrings
 curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | \
   gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
@@ -14,8 +13,3 @@ deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node
 EOF
 apt-get update $APT_OPTS>>$LOG
 apt-get install $APT_OPTS -y nodejs>>$LOG
-[ -n $(which npm) ] && {
-  VINSTALLED=$(npm --version)
-  VLATEST=$(npm view npm version)
-  [ "$VINSTALLED" != "$VLATEST" ] && npm install -g npm>>$LOG
-}
