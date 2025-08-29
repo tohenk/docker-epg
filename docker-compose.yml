@@ -1,4 +1,18 @@
 services:
+  preflight:
+    image: debian:${DEBIAN_VERSION}
+    container_name: ${APP_NAME}-preflight
+    command:
+      - /bin/bash
+      - '-c'
+      - |
+        find /preflight \( -name '*.sh' -o -name '*.env' -o -name 'crontab.*' \) -exec sed -i -e 's/\r//g' {} \;
+        chmod +x /preflight/bin/run-script.sh
+    volumes:
+      - ./bin/:/preflight/bin
+      - ./config:/preflight/config
+      - ./cron:/preflight/cron
+      - ./scripts:/preflight/scripts
   cron:
     image: debian:${DEBIAN_VERSION}
     container_name: ${APP_NAME}-cron
@@ -13,10 +27,10 @@ services:
         export TARGET_DIR=$${CRON_DIR}
         export ENV_FILE_PATTERN=/scripts/*.env
         export APT_CORE_PACKAGES="sudo ca-certificates curl gnupg"
-        export APT_PACKAGES="git dos2unix cron"
+        export APT_PACKAGES="cron git"
         export X_USER=$$CRON_USER
         # run initialization
-        run-script.sh timezone apt adduser apt-install genenv nodejs lineending cron cleanlock setowner +viewlog
+        run-script.sh timezone apt adduser apt-install genenv nodejs cron cleanlock setowner +viewlog
         # start cron
         echo "Starting cron..."
         cron -f -L 15
@@ -31,6 +45,9 @@ services:
       - ./config:/config
       - ./cron:/cron
       - ./scripts:/scripts
+    depends_on:
+      preflight:
+        condition: service_completed_successfully
   nginx:
     image: nginx
     container_name: ${APP_NAME}-web
@@ -53,3 +70,5 @@ services:
       - ./build:/build
       - ./scripts:/scripts
       - ./templates:/etc/nginx/templates
+    depends_on:
+      - cron
