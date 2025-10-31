@@ -48,9 +48,9 @@ The steps is described as follows:
   APP_HTTP_PORT=80
   APP_GUIDES_DIR=guides
   APP_TIMEZONE=Asia/Jakarta
-  APT_MIRROR=kartolo.sby.datautama.net.id
-  DEBIAN_VERSION=bookworm-slim
-  NODE_VERSION=22
+  APT_MIRROR=deb.debian.org
+  DEBIAN_VERSION=trixie-slim
+  NODE_VERSION=24
   ```
 
 * Includes which sites and language to build, see https://github.com/iptv-org/epg/blob/master/SITES.md.
@@ -78,7 +78,7 @@ The steps is described as follows:
   ```xml
   <?xml version="1.0" encoding="UTF-8"?>
   <channels>
-    <channel site="cubmu.com" lang="id" xmltv_id="BioskopIndonesia.id" site_id="4028c68574537fcd0174be26e4325724">Bioskop Indonesia</channel>
+    <channel site="tivie.id" lang="id" xmltv_id="HBOAsia.sg" site_id="hbo">HBO</channel>
   </channels>
   ```
 
@@ -107,24 +107,14 @@ The steps is described as follows:
   --- timezone.sh ---
 
   Current default time zone: 'Asia/Jakarta'
-  Local time is now:      Mon Aug 18 16:25:37 WIB 2025.
-  Universal Time is now:  Mon Aug 18 09:25:37 UTC 2025.
+  Local time is now:      Fri Oct 31 15:44:45 WIB 2025.
+  Universal Time is now:  Fri Oct 31 08:44:45 UTC 2025.
 
   --- apt.sh ---
-  debconf: delaying package configuration, since apt-utils is not installed
   --- adduser.sh ---
   --- apt-install.sh ---
-  debconf: delaying package configuration, since apt-utils is not installed
   --- genenv.sh ---
   --- nodejs.sh ---
-  debconf: delaying package configuration, since apt-utils is not installed
-  --- lineending.sh ---
-  dos2unix: converting file /cron/crontab.prod to Unix format...
-  dos2unix: converting file /cron/epg.env to Unix format...
-  dos2unix: converting file /cron/epg.sh to Unix format...
-  dos2unix: converting file /config/channels.xml to Unix format...
-  dos2unix: converting file /config/fav.channels.xml to Unix format...
-  dos2unix: converting file /config/guides.env to Unix format...
   --- cron.sh ---
   SCHEDULER_ENV is not set, using prod
   Loading crontab file: /cron/crontab.prod
@@ -132,63 +122,51 @@ The steps is described as follows:
   --- setowner.sh ---
   --- viewlog.sh ---
   Starting cron...
-  tail: cannot open '/home/epg/epg.log' for reading: No such file or directory
-  tail: '/home/epg/epg.log' has appeared;  following new file
   === epg.sh ===
   Cloning EPG source...
   Cloning into 'epg'...
-  Updating files: 100% (1791/1791), done.
+  Updating files: 100% (1765/1765), done.
   Checking latest npm version...
   npm notice
-  npm notice New major version of npm available! 10.9.3 -> 11.5.2
-  npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.5.2
-  npm notice To update run: npm install -g npm@11.5.2
+  npm notice New patch version of npm available! 11.6.1 -> 11.6.2
+  npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.2
+  npm notice To update run: npm install -g npm@11.6.2
   npm notice
 
-  removed 9 packages, and changed 42 packages in 4s
+  removed 1 package, and changed 28 packages in 5s
 
-  25 packages are looking for funding
+  28 packages are looking for funding
     run `npm fund` for details
   Updating npm modules...
   npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
   npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
   npm warn deprecated skip-postinstall@1.0.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
-  added 970 packages, and audited 971 packages in 2m
+  added 925 packages, and audited 926 packages in 4m
 
-  149 packages are looking for funding
+  150 packages are looking for funding
     run `npm fund` for details
 
-  4 low severity vulnerabilities
-
-  To address all issues possible (including breaking changes), run:
-    npm audit fix --force
-
-  Some issues need review, and may require choosing
-  a different dependency.
-
-  Run `npm audit` for details.
+  found 0 vulnerabilities
   Preparing directory...
   Loading EPG api...
 
   > api:load
   > tsx scripts/commands/api/load.ts
 
-  --- Mon Aug 18 16:30:49 WIB 2025 ---
+  --- Fri Oct 31 15:50:54 WIB 2025 ---
   Building guide for firstmedia.com...
   Building guide for indihometv.com...
   Building guide for mncvision.id (id)...
   Building guide for vidio.com...
   Building guide for visionplus.id (id)...
   Building guide for curated channels...
-  Building guide for fav channels...
-  Guide firstmedia.com: ✔ done in 00h 00m 20s
-  Guide fav: ✔ done in 00h 00m 34s
-  Guide vidio.com: ✔ done in 00h 00m 38s
-  Guide visionplus.id: ✔ done in 00h 00m 45s
-  Guide curated: ✔ done in 00h 00m 47s
-  Guide indihometv.com: ✔ done in 00h 03m 49s
-  Guide mncvision.id: ✔ done in 00h 10m 58s
+  Guide firstmedia.com: success done in 00h 00m 20s
+  Guide vidio.com: success done in 00h 00m 38s
+  Guide visionplus.id: success done in 00h 00m 45s
+  Guide curated: success done in 00h 00m 47s
+  Guide indihometv.com: success done in 00h 03m 49s
+  Guide mncvision.id: success done in 00h 10m 58s
   ```
 
 * Once build completed, head to http://your-docker-ip/guides/ to view the guides.
@@ -201,7 +179,7 @@ The steps is described as follows:
   ```
 
   ```
-  curated.log  epg.log  fav.log  firstmedia.com.log  indihometv.com.log  mncvision.id.log  vidio.com.log  visionplus.id.log
+  curated.log  epg.log  firstmedia.com.log  indihometv.com.log  mncvision.id.log  vidio.com.log  visionplus.id.log
   ```
 
 * To build EPG on demand, create an empty `.run` file in `build` folder.
