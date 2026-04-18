@@ -15,14 +15,18 @@ while [ $# -gt 0 ]; do
   else
     SRC=${SCRIPT}
   fi
-  if [ -f /scripts/${SRC}.sh ]; then
-    cp /scripts/${SRC}.sh ~/${SCRIPT}.sh
-    chmod +x ~/${SCRIPT}.sh
+  XSCRIPT=/scripts/${SRC}.sh
+  if [ -f ${XSCRIPT} ]; then
+    if [ ! -x ${XSCRIPT} ]; then
+      cp ${XSCRIPT} ~/${SCRIPT}.sh
+      XSCRIPT=~/${SCRIPT}.sh
+      chmod +x ${XSCRIPT}
+    fi
     echo "--- ${SCRIPT}.sh ---"
     if [ ${BG} -eq 1 ]; then
-      ~/${SCRIPT}.sh &
+      ${XSCRIPT} &
     else
-      ~/${SCRIPT}.sh
+      ${XSCRIPT}
     fi
   fi
   shift
