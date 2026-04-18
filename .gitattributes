@@ -1,2 +1,4 @@
 * text=auto
+*.env text eol=lf
+*.prod text eol=lf
 *.sh text eol=lf

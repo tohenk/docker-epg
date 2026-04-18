@@ -92,8 +92,8 @@ The steps is described as follows:
   ```
 
   ```
-  * * * * * /cron/epg.sh auto 2>&1 | tee -a ~/epg.log
-  0 0 * * * /cron/epg.sh 2>&1 | tee -a ~/epg.log
+  * * * * * /scripts/epg.sh auto 2>&1 | tee -a ~/epg.log
+  0 0 * * * /scripts/epg.sh 2>&1 | tee -a ~/epg.log
   ```
 
 * Start the container, if you need to view the console output use `docker logs`.

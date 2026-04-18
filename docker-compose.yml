@@ -25,7 +25,7 @@ services:
         export CRON_USER=epg
         export CRON_DIR=/cron
         export TARGET_DIR=$${CRON_DIR}
-        export ENV_FILE_PATTERN=/scripts/*.env
+        export ENV_FILE_PATTERN=/config/*.env
         export APT_CORE_PACKAGES="sudo ca-certificates curl gnupg"
         export APT_PACKAGES="cron git"
         export X_USER=$$CRON_USER

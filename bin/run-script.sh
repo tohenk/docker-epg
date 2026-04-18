@@ -8,18 +8,18 @@ while [ $# -gt 0 ]; do
     LEN=$((${#SCRIPT}-1))
     SCRIPT=${SCRIPT:1:$LEN}
   fi
-  IFS=':' read -ra ARR <<< "$SCRIPT"
+  IFS=':' read -ra ARR <<< "${SCRIPT}"
   if [ ${#ARR[@]} -gt 1 ]; then
     SRC=${ARR[0]}
     SCRIPT=${ARR[1]}
   else
-    SRC=$SCRIPT
+    SRC=${SCRIPT}
   fi
   if [ -f /scripts/${SRC}.sh ]; then
     cp /scripts/${SRC}.sh ~/${SCRIPT}.sh
     chmod +x ~/${SCRIPT}.sh
     echo "--- ${SCRIPT}.sh ---"
-    if [ $BG -eq 1 ]; then
+    if [ ${BG} -eq 1 ]; then
       ~/${SCRIPT}.sh &
     else
       ~/${SCRIPT}.sh

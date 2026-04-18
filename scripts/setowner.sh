@@ -1,3 +1,3 @@
 #!/bin/bash
 
-chown $CRON_USER /build
+chown ${CRON_USER} /build
