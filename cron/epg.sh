@@ -24,21 +24,21 @@ fi
 [ $(id -u) -eq 0 ] && PREFIX="" || PREFIX="sudo"
 
 watch_completion() {
-  SITE=$1
-  LOG=$2
-  TIMEOUT=$3
+  local SITE=$1
+  local LOG=$2
+  local TIMEOUT=$3
   [ -z "$TIMEOUT" ] && TIMEOUT=${WATCH_TIMEOUT:-3600}
-  START=$(date +%s)
+  local START=$(date +%s)
   while true; do
     sleep 1
     if [ -f $LOG ]; then
-      LINE=$(echo "`tail -n 1 $LOG | grep 'done in'`" | xargs)
+      local LINE=$(echo "$(tail -n 1 $LOG | grep 'done in')" | xargs)
       if [ -n "$LINE" ]; then
         echo "Guide $SITE: $LINE"
         break
       fi
     fi
-    DELTA=$(($(date +%s)-$START))
+    local DELTA=$(($(date +%s)-$START))
     if [ $DELTA -gt $TIMEOUT ]; then
       break
     fi
@@ -46,13 +46,13 @@ watch_completion() {
 }
 
 run_grab() {
-  OUT=$1
-  SITE=$2
-  LANG=$3
-  CONN=$4
-  DAYS=$5
-  POS=$((${#SITE}-4))
-  CMD="--output=$OUT"
+  local OUT=$1
+  local SITE=$2
+  local LANG=$3
+  local CONN=$4
+  local DAYS=$5
+  local POS=$((${#SITE}-4))
+  local CMD="--output=$OUT"
   if [ "${SITE:$POS:4}" = ".xml" ]; then
     CMD="$CMD --channels=$SITE"
     IFS='/' read -ra AA <<< "$SITE"
@@ -60,7 +60,7 @@ run_grab() {
       SITE=${AA[0]}
     fi
   else
-    CMD="$CMD --site=$SITE"
+    CMD="$CMD --sites=$SITE"
   fi
   if [ -n "$LANG" -a "x$LANG" != "xNONE" ]; then
     CMD="$CMD --lang=$LANG"
@@ -75,7 +75,7 @@ run_grab() {
   watch_completion $SITE ~/$SITE.log &
 }
 
-echo "=== `basename $0` ==="
+echo "=== $(basename $0) ==="
 
 touch $LOCK_FILE
 
@@ -99,7 +99,7 @@ VLATEST=$(npm view npm version)
 [ "$VINSTALLED" != "$VLATEST" ] && $PREFIX npm install -g npm
 
 echo "Updating npm modules..."
-npm update
+npm update --lockfile-version=2
 
 echo "Preparing directory..."
 mkdir -p $OUT_DIR
