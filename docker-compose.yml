@@ -25,7 +25,7 @@ services:
         export CRON_USER=epg
         export CRON_DIR=/cron
         export TARGET_DIR=$${CRON_DIR}
-        export ENV_FILE_PATTERN=/config/*.env
+        export ENV_FILE_PATTERN=/config/epg.env
         export APT_CORE_PACKAGES="sudo ca-certificates curl gnupg"
         export APT_PACKAGES="cron git"
         export X_USER=$$CRON_USER
@@ -41,10 +41,10 @@ services:
       NODE_VERSION: ${NODE_VERSION}
     volumes:
       - ./bin/run-script.sh:/usr/local/bin/run-script.sh
+      - ./scripts:/scripts
       - ./build:/build
       - ./config:/config
       - ./cron:/cron
-      - ./scripts:/scripts
     depends_on:
       preflight:
         condition: service_completed_successfully
@@ -67,8 +67,8 @@ services:
       APP_GUIDES_DIR: ${APP_GUIDES_DIR}
     volumes:
       - ./bin/run-script.sh:/usr/local/bin/run-script.sh
-      - ./build:/build
       - ./scripts:/scripts
+      - ./build:/build
       - ./templates:/etc/nginx/templates
     depends_on:
       - cron

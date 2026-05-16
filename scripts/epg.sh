@@ -1,15 +1,17 @@
 #!/bin/bash
 
 . /cron/epg.env
-. /cron/guides.env
 
 BUILD_DIR=/build
+CONFIG_DIR=/config
 OUT_DIR=${BUILD_DIR}/${EPG_GUIDES_DIR}
 LOCK_FILE=${BUILD_DIR}/.lock
 RUN_FILE=${BUILD_DIR}/.run
 ONCE_FILE=${BUILD_DIR}/.once
-CURATED_DIR=/config
+CURATED_DIR=${CONFIG_DIR}
 EPG_REPO=${EPG_REPO:-https://github.com/iptv-org/epg.git}
+
+[ -f ${CONFIG_DIR}/guides.env ] && . ${CONFIG_DIR}/guides.env
 
 [ -f ${LOCK_FILE} ] && exit
 if [ "x$1" = "xauto" ]; then
@@ -152,7 +154,8 @@ for FILE in ${FILES}; do
     echo "Building guide for ${SITE} channels..."
     GUIDE_XML=${GUIDE_DIR}/${SITE}.xml
     DAYS=${CURATED_DAYS:-2}
-    run_grab ${GUIDE_XML} ${SITE}/${FILE} NONE 1 ${DAYS}
+    CONN=${CURATED_CON:-1}
+    run_grab ${GUIDE_XML} ${SITE}/${FILE} NONE ${CONN} ${DAYS}
   fi
 done
 

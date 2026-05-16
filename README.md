@@ -62,8 +62,9 @@ The steps is described as follows:
 
   ```sh
   LANGS="id"
-  SITES="firstmedia.com indihometv.com mncvision.id vidio.com visionplus.id"
-  CURATED_DAYS="2"
+  SITES="cubmu.com dens.tv maxstream.tv mncvision.id tivie.id vidio.com visionplus.id"
+  CURATED_DAYS=2
+  CURATED_CON=1
   ```
 
   The number of connections for fetching the site can be specified by appending the
