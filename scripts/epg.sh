@@ -96,12 +96,15 @@ else
 fi
 
 echo "Checking latest npm version..."
-VINSTALLED=$(npm --version)
-VLATEST=$(npm view npm version)
-[ "${VINSTALLED}" != "${VLATEST}" ] && ${PREFIX} npm install -g npm
+VINSTALLED=$(npm --version 2>/dev/null)
+VLATEST=$(npm view npm version 2>/dev/null)
+if [ "${VINSTALLED}" != "${VLATEST}" ]; then
+  echo "Updating npm to ${VLATEST}..."
+  ${PREFIX} npm install -g npm 2>&1 1>/dev/null
+fi
 
 echo "Updating node modules..."
-npm update --lockfile-version=2
+npm update --lockfile-version=2 --ignore-scripts
 
 echo "Preparing directory..."
 mkdir -p ${OUT_DIR}
