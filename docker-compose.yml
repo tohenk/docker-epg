@@ -22,8 +22,6 @@ services:
       - '-c'
       - |
         export DEBIAN_FRONTEND=noninteractive
-        export CRON_USER=epg
-        export CRON_DIR=/cron
         export TARGET_DIR=$${CRON_DIR}
         export ENV_FILE_PATTERN=/config/epg.env
         export APT_CORE_PACKAGES="sudo ca-certificates curl gnupg"
@@ -39,6 +37,8 @@ services:
       APP_GUIDES_DIR: ${APP_GUIDES_DIR}
       APT_MIRROR: ${APT_MIRROR}
       NODE_VERSION: ${NODE_VERSION}
+      CRON_DIR: /cron
+      CRON_USER: epg
     volumes:
       - ./bin/run-script.sh:/usr/local/bin/run-script.sh
       - ./scripts:/scripts
