@@ -4,11 +4,12 @@
 
 BUILD_DIR=/build
 CONFIG_DIR=/config
+CURATED_DIR=${CONFIG_DIR}
+LOG_DIR=${BUILD_DIR}/log
 OUT_DIR=${BUILD_DIR}/${EPG_GUIDES_DIR}
 LOCK_FILE=${BUILD_DIR}/.lock
 RUN_FILE=${BUILD_DIR}/.run
 ONCE_FILE=${BUILD_DIR}/.once
-CURATED_DIR=${CONFIG_DIR}
 EPG_REPO=${EPG_REPO:-https://github.com/iptv-org/epg.git}
 
 [ -f ${CONFIG_DIR}/guides.env ] && . ${CONFIG_DIR}/guides.env
@@ -73,8 +74,9 @@ run_grab() {
   if [ -n "${DAYS}" ]; then
     [ ${DAYS} -gt 0 ] && CMD="${CMD} --days=${DAYS}"
   fi
-  $(echo "npm run grab --- ${CMD}" | xargs) 1>~/${SITE}.log 2>&1 &
-  watch_completion ${SITE} ~/${SITE}.log &
+  mkdir -p ${LOG_DIR}
+  $(echo "npm run grab --- ${CMD}" | xargs) 1>${LOG_DIR}/${SITE}.log 2>&1 &
+  watch_completion ${SITE} ${LOG_DIR}/${SITE}.log &
 }
 
 echo "=== $(basename $0) ==="

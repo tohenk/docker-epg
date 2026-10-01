@@ -176,7 +176,7 @@ The steps is described as follows:
 
   ```sh
   sudo docker exec -it epg-cron su epg
-  ls ~
+  ls /build/log
   ```
 
   ```
