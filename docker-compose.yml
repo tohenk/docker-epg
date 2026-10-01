@@ -45,6 +45,7 @@ services:
       - ./build:/build
       - ./config:/config
       - ./cron:/cron
+      - ./curator:/curator
     depends_on:
       preflight:
         condition: service_completed_successfully

@@ -10,6 +10,8 @@ OUT_DIR=${BUILD_DIR}/${EPG_GUIDES_DIR}
 LOCK_FILE=${BUILD_DIR}/.lock
 RUN_FILE=${BUILD_DIR}/.run
 ONCE_FILE=${BUILD_DIR}/.once
+CURATING_FILE=${BUILD_DIR}/.curating
+WAITING_FILE=${BUILD_DIR}/.wait
 EPG_REPO=${EPG_REPO:-https://github.com/iptv-org/epg.git}
 
 [ -f ${CONFIG_DIR}/guides.env ] && . ${CONFIG_DIR}/guides.env
@@ -43,12 +45,14 @@ watch_completion() {
   local LOG=$2
   local TIMEOUT=$3
   [ -z "${TIMEOUT}" ] && TIMEOUT=${WATCH_TIMEOUT:-3600}
+  local COMPLETED=0
   local START=$(date +%s)
   while true; do
     sleep 1
     if [ -f ${LOG} ]; then
       local LINE=$(echo "$(tail -n 1 ${LOG} | grep 'done in')" | xargs)
       if [ -n "${LINE}" ]; then
+        COMPLETED=1
         echo "Guide ${SITE}: ${LINE}"
         break
       fi
@@ -58,6 +62,18 @@ watch_completion() {
       break
     fi
   done
+  if [ ${COMPLETED} -eq 1 -a ! -f ${WAITING_FILE} ]; then
+    touch ${WAITING_FILE}
+    while true; do
+      if [ ! -f ${CURATING_FILE} ]; then
+        break
+      fi
+      sleep 1
+    done
+    rm -rf ${WAITING_FILE}
+    cd "${BUILD_DIR}/epg/curator" && \
+      $(echo "npm start ${CURATED_DIR}/curating ${OUT_DIR} ${CURATING_FILE}" | xargs) 1>${LOG_DIR}/curator.log 2>&1 &
+  fi
 }
 
 run_grab() {
@@ -108,6 +124,7 @@ else
   git pull
   [ -n "${CHANGED}" ] && git stash apply
 fi
+cp -r /curator ${BUILD_DIR}/epg/
 
 echo "Checking latest npm version..."
 VINSTALLED=$(npm --version 2>/dev/null)
