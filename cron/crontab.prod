@@ -1,2 +1,3 @@
 * * * * * /scripts/epg.sh auto 2>&1 | tee -a ~/epg.log
 0 0 * * * /scripts/epg.sh 2>&1 | tee -a ~/epg.log
+0 1 * * * /scripts/epg.sh two 2>&1 | tee -a ~/epg.log

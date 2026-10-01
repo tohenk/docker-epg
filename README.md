@@ -62,10 +62,14 @@ The steps is described as follows:
 
   ```sh
   LANGS="id"
-  SITES="cubmu.com dens.tv maxstream.tv mncvision.id tivie.id vidio.com visionplus.id"
   CURATED_DAYS=2
   CURATED_CON=1
+  SITES="cubmu.com dens.tv mncvision.id tivie.id vidio.com visionplus.id"
+  SITES_TWO="maxstream.tv"
   ```
+
+  The default guide environment above define two sets of sites which is `SITES` and `SITES_TWO`.
+  You can group as many sites as you prefer then later can be referenced from CRON job.
 
   The number of connections for fetching the site can be specified by appending the
   number delimited by `:`, e.g. `mncvision.id:5` will use max connections of 5.
@@ -86,7 +90,8 @@ The steps is described as follows:
   More curated channels is supported, just drop the filename as `[alias].channels.xml`.
   The `[alias]` would be any name of your choice, e.g. `my-fav-guide.channels.xml`.
 
-* If necessary, you can customize CRON job. By default it will build EPG once, then every 00:00.
+* If necessary, you can customize CRON job. By default it will build EPG once, then every 00:00
+  for default `SITES`, and every 01:00 for `SITES_TWO`.
 
   ```sh
   vi cron/crontab.prod
@@ -95,7 +100,10 @@ The steps is described as follows:
   ```
   * * * * * /scripts/epg.sh auto 2>&1 | tee -a ~/epg.log
   0 0 * * * /scripts/epg.sh 2>&1 | tee -a ~/epg.log
+  0 1 * * * /scripts/epg.sh two 2>&1 | tee -a ~/epg.log
   ```
+
+  Please be warned, when running for non default sites, the curated channels will be skipped.
 
 * Start the container, if you need to view the console output use `docker logs`.
 

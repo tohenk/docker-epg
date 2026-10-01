@@ -15,12 +15,24 @@ EPG_REPO=${EPG_REPO:-https://github.com/iptv-org/epg.git}
 [ -f ${CONFIG_DIR}/guides.env ] && . ${CONFIG_DIR}/guides.env
 
 [ -f ${LOCK_FILE} ] && exit
+
 if [ "x$1" = "xauto" ]; then
   if [ -f ${RUN_FILE} ]; then
     rm -f ${RUN_FILE}
   else
     [ -f ${ONCE_FILE} ] && exit
     touch ${ONCE_FILE}
+  fi
+  shift
+fi
+
+WITH_CURATED=1
+if [ -n "$1" ]; then
+  SITES_VAR="SITES_${1^^}"
+  SITES_DATA=${!SITES_VAR}
+  if [ -n "${SITES_DATA}" ]; then
+    SITES=${SITES_DATA}
+    WITH_CURATED=0
   fi
 fi
 
@@ -117,51 +129,57 @@ echo "Loading EPG api..."
 npm run api:load
 
 echo "--- $(date) ---"
-for SITE in ${SITES}; do
-  CONN=1
-  IFS=':' read -ra ARR <<< "${SITE}"
-  if [ ${#ARR[@]} -gt 1 ]; then
-    SITE=${ARR[0]}
-    CONN=${ARR[1]}
-  fi
-  GUIDE_XML=${GUIDE_DIR}/${SITE}.xml
-  CNT=0
-  # build guide use configured language
-  for LANG in ${LANGS}; do
-    if [ -f sites/${SITE}/${SITE}_${LANG}.channels.xml ]; then
-      echo "Building guide for ${SITE} (${LANG})..."
-      run_grab ${GUIDE_XML} ${SITE} ${LANG} ${CONN}
-      CNT=$((CNT+1))
+
+if [ -n "${SITES}" ]; then
+  for SITE in ${SITES}; do
+    CONN=1
+    IFS=':' read -ra ARR <<< "${SITE}"
+    if [ ${#ARR[@]} -gt 1 ]; then
+      SITE=${ARR[0]}
+      CONN=${ARR[1]}
+    fi
+    GUIDE_XML=${GUIDE_DIR}/${SITE}.xml
+    CNT=0
+    # build guide use configured language
+    for LANG in ${LANGS}; do
+      if [ -f sites/${SITE}/${SITE}_${LANG}.channels.xml ]; then
+        echo "Building guide for ${SITE} (${LANG})..."
+        run_grab ${GUIDE_XML} ${SITE} ${LANG} ${CONN}
+        CNT=$((CNT+1))
+      fi
+    done
+    # no guide for configured language, use default
+    if [ ${CNT} -eq 0 ]; then
+      echo "Building guide for ${SITE}..."
+      run_grab ${GUIDE_XML} ${SITE} NONE ${CONN}
     fi
   done
-  # no guide for configured language, use default
-  if [ ${CNT} -eq 0 ]; then
-    echo "Building guide for ${SITE}..."
-    run_grab ${GUIDE_XML} ${SITE} NONE ${CONN}
-  fi
-done
-FILES=$(ls ${CURATED_DIR} | grep channels.xml)
-for FILE in ${FILES}; do
-  CURATED_FILE=${CURATED_DIR}/${FILE}
-  if [ -f "${CURATED_FILE}" ]; then
-    LEN=${#FILE}
-    if [ ${LEN} -gt 13 ]; then
-      LEN=$((LEN-13))
-      SITE=${FILE:0:${LEN}}
-    else
-      SITE=curated
+fi
+
+if [ ${WITH_CURATED} -eq 1 ]; then
+  FILES=$(ls ${CURATED_DIR} | grep channels.xml)
+  for FILE in ${FILES}; do
+    CURATED_FILE=${CURATED_DIR}/${FILE}
+    if [ -f "${CURATED_FILE}" ]; then
+      LEN=${#FILE}
+      if [ ${LEN} -gt 13 ]; then
+        LEN=$((LEN-13))
+        SITE=${FILE:0:${LEN}}
+      else
+        SITE=curated
+      fi
+      mkdir -p ${SITE}
+      if [ -h ${SITE}/${FILE} ]; then
+        rm -f ${SITE}/${FILE}
+      fi
+      ln -s ${CURATED_FILE} ${SITE}/${FILE}
+      echo "Building guide for ${SITE} channels..."
+      GUIDE_XML=${GUIDE_DIR}/${SITE}.xml
+      DAYS=${CURATED_DAYS:-2}
+      CONN=${CURATED_CON:-1}
+      run_grab ${GUIDE_XML} ${SITE}/${FILE} NONE ${CONN} ${DAYS}
     fi
-    mkdir -p ${SITE}
-    if [ -h ${SITE}/${FILE} ]; then
-      rm -f ${SITE}/${FILE}
-    fi
-    ln -s ${CURATED_FILE} ${SITE}/${FILE}
-    echo "Building guide for ${SITE} channels..."
-    GUIDE_XML=${GUIDE_DIR}/${SITE}.xml
-    DAYS=${CURATED_DAYS:-2}
-    CONN=${CURATED_CON:-1}
-    run_grab ${GUIDE_XML} ${SITE}/${FILE} NONE ${CONN} ${DAYS}
-  fi
-done
+  done
+fi
 
 rm -f ${LOCK_FILE}
