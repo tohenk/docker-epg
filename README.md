@@ -83,12 +83,16 @@ The steps is described as follows:
   ```xml
   <?xml version="1.0" encoding="UTF-8"?>
   <channels>
-    <channel site="tivie.id" lang="id" xmltv_id="HBOAsia.sg" site_id="hbo">HBO</channel>
+    <channel site="nowplayer.now.com" site_id="113" lang="en" xmltv_id="CinemaxAsia.sg@SD">CINEMAX</channel>
+    <channel site="nowplayer.now.com" site_id="115" lang="en" xmltv_id="HBOAsia.sg@SD">HBO</channel>
+    <channel site="nowplayer.now.com" site_id="112" lang="en" xmltv_id="HBOFamilyAsia.sg@SD">HBO Family</channel>
+    <channel site="nowplayer.now.com" site_id="111" lang="en" xmltv_id="HBOHitsAsia.sg@SD">HBO Hits</channel>
+    <channel site="nowplayer.now.com" site_id="114" lang="en" xmltv_id="HBOSignatureAsia.sg@SD">HBO Signature</channel>
   </channels>
   ```
 
   More curated channels is supported, just drop the filename as `[alias].channels.xml`.
-  The `[alias]` would be any name of your choice, e.g. `my-fav-guide.channels.xml`.
+  The `[alias]` would be any name of your choice, e.g. `nowplayer.now.com.channels.xml`.
 
 * If necessary, you can customize CRON job. By default it will build EPG once, then every 00:00
   for default `SITES`, and every 01:00 for `SITES_TWO`.
@@ -116,8 +120,8 @@ The steps is described as follows:
   --- timezone.sh ---
 
   Current default time zone: 'Asia/Jakarta'
-  Local time is now:      Fri Oct 31 15:44:45 WIB 2025.
-  Universal Time is now:  Fri Oct 31 08:44:45 UTC 2025.
+  Local time is now:      Fri Oct  2 08:50:35 WIB 2026.
+  Universal Time is now:  Fri Oct  2 01:50:35 UTC 2026.
 
   --- apt.sh ---
   --- adduser.sh ---
@@ -134,48 +138,49 @@ The steps is described as follows:
   === epg.sh ===
   Cloning EPG source...
   Cloning into 'epg'...
-  Updating files: 100% (1765/1765), done.
+  Updating files: 100% (1901/1901), done.
   Checking latest npm version...
-  npm notice
-  npm notice New patch version of npm available! 11.6.1 -> 11.6.2
-  npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.2
-  npm notice To update run: npm install -g npm@11.6.2
-  npm notice
+  Updating npm to 12.2.0...
+  Updating node modules...
+  npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+  npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn deprecated glob@11.1.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn deprecated glob@11.1.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn deprecated glob@11.1.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+  npm warn deprecated glob@11.1.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
-  removed 1 package, and changed 28 packages in 5s
+  added 838 packages, and audited 839 packages in 2m
 
-  28 packages are looking for funding
-    run `npm fund` for details
-  Updating npm modules...
-  npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-  npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
-  npm warn deprecated skip-postinstall@1.0.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
-
-  added 925 packages, and audited 926 packages in 4m
-
-  150 packages are looking for funding
+  140 packages are looking for funding
     run `npm fund` for details
 
-  found 0 vulnerabilities
+  6 high severity vulnerabilities
+
+  To address all issues (including breaking changes), run:
+    npm audit fix --force
+
+  Run `npm audit` for details.
   Preparing directory...
   Loading EPG api...
-
-  > api:load
-  > tsx scripts/commands/api/load.ts
-
-  --- Fri Oct 31 15:50:54 WIB 2025 ---
-  Building guide for firstmedia.com...
-  Building guide for indihometv.com...
+  npm notice run api:load
+  npm notice run tsx scripts/commands/api/load.ts
+  --- Fri Oct  2 08:54:50 WIB 2026 ---
+  Building guide for cubmu.com...
+  Building guide for dens.tv...
+  Building guide for maxstream.tv...
   Building guide for mncvision.id (id)...
+  Building guide for tivie.id...
   Building guide for vidio.com...
   Building guide for visionplus.id (id)...
-  Building guide for curated channels...
-  Guide firstmedia.com: success done in 00h 00m 20s
-  Guide vidio.com: success done in 00h 00m 38s
-  Guide visionplus.id: success done in 00h 00m 45s
-  Guide curated: success done in 00h 00m 47s
-  Guide indihometv.com: success done in 00h 03m 49s
-  Guide mncvision.id: success done in 00h 10m 58s
+  Building guide for nowplayer.now.com channels...
+  Guide nowplayer.now.com: ✔ done in 00h 00m 15s
+  Guide visionplus.id: ✔ done in 00h 00m 31s
+  Guide dens.tv: ✔ done in 00h 00m 34s
+  Guide vidio.com: ✔ done in 00h 00m 44s
+  Guide cubmu.com: ✔ done in 00h 00m 47s
+  Guide maxstream.tv: ✔ done in 00h 01m 21s
+  Guide tivie.id: ✔ done in 00h 01m 17s
+  Guide mncvision.id: ✔ done in 00h 01m 32s
   ```
 
 * Once build completed, head to http://your-docker-ip/guides/ to view the guides.
@@ -188,11 +193,36 @@ The steps is described as follows:
   ```
 
   ```
-  curated.log  epg.log  firstmedia.com.log  indihometv.com.log  mncvision.id.log  vidio.com.log  visionplus.id.log
+  cubmu.com.log  curator.log  dens.tv.log  maxstream.tv.log  mncvision.id.log  nowplayer.now.com.log  tivie.id.log  vidio.com.log  visionplus.id.log
   ```
 
 * To build EPG on demand, create an empty `.run` file in `build` folder.
 
   ```sh
   touch ./build/.run
+  ```
+
+## Curating EPG
+
+It is now possible to collect prefered channels from generated output as curated
+channels. To do so, we just need a standard curated channel as shown above then
+place it under `config/curating/` directory. The filename should ends with
+`*-channels.xml`.
+
+  ```sh
+  vi config/curating/mytv-channels.xml
+  ```
+
+  ```xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <channels>
+    <channel site="maxstream.tv" site_id="0_86sal99e" lang="id" xmltv_id="AnimaxAsia.sg@SD">Animax</channel>
+    <channel site="nowplayer.now.com" site_id="113" lang="en" xmltv_id="CinemaxAsia.sg@SD">CINEMAX</channel>
+    <channel site="nowplayer.now.com" site_id="115" lang="en" xmltv_id="HBOAsia.sg@SD">HBO</channel>
+    <channel site="nowplayer.now.com" site_id="112" lang="en" xmltv_id="HBOFamilyAsia.sg@SD">HBO Family</channel>
+    <channel site="nowplayer.now.com" site_id="111" lang="en" xmltv_id="HBOHitsAsia.sg@SD">HBO Hits</channel>
+    <channel site="nowplayer.now.com" site_id="114" lang="en" xmltv_id="HBOSignatureAsia.sg@SD">HBO Signature</channel>
+    <channel site="maxstream.tv" site_id="0_jhb1o6kj" lang="id" xmltv_id="StudioUniversalLatinAmerica.us@Brazil">Studio Universal</channel>
+    <channel site="visionplus.id" site_id="00000000000000000047" lang="id" xmltv_id="ZeeBioskop.id@SD">Zee Bioskop</channel>
+  </channels>
   ```
