@@ -27,6 +27,9 @@ import path from 'node:path';
 import { glob } from 'glob';
 import { XmlDocument, XmlNode, XmlXPath } from 'libxml2-wasm';
 
+const LOCK_LOCK = '.curating';
+const LOCK_HALT = '.wait';
+
 interface NamedPath {
     [key: string]: import('path-scurry').Path;
 }
@@ -44,20 +47,46 @@ async function collect(dir: string, suffix: string): Promise<NamedPath> {
     return res;
 }
 
-function cleanlock(lockfile: any) {
-    if (typeof lockfile === 'string' && fs.existsSync(lockfile)) {
-        fs.rmSync(lockfile, {force: true});
+function writelock(lockdir: any, callback: any = null) {
+    if (typeof lockdir === 'string') {
+        const lockfile = path.join(lockdir, LOCK_LOCK);
+        if (fs.existsSync(lockfile)) {
+            return false;
+        } else {
+            fs.writeFileSync(lockfile, '');
+            if (typeof callback === 'function') {
+                callback();
+            }
+        }
+    }
+    return true;
+}
+
+function cleanlock(lockdir: any) {
+    if (typeof lockdir === 'string') {
+        const lockfile = path.join(lockdir, LOCK_LOCK);
+        if (fs.existsSync(lockfile)) {
+            fs.rmSync(lockfile, {force: true});
+        }
     }
 }
 
-async function run(srcdir: string, workdir: string, lockfile: any) {
-    if (typeof lockfile === 'string') {
+function ishalted(lockdir: any) {
+    if (typeof lockdir === 'string') {
+        const lockfile = path.join(lockdir, LOCK_HALT);
         if (fs.existsSync(lockfile)) {
-            return;
+            return true;
         }
-        process.on('SIGINT', () => cleanlock(lockfile));
-        process.on('SIGTERM', () => cleanlock(lockfile));
-        fs.writeFileSync(lockfile, '');
+    }
+    return false;
+}
+
+async function run(srcdir: string, workdir: string, lockdir: any) {
+    if (!writelock(lockdir, () => {
+        process.on('SIGINT', () => cleanlock(lockdir));
+        process.on('SIGTERM', () => cleanlock(lockdir));
+    })) {
+        return;
     }
     try {
         const srcfiles = await collect(srcdir, '-channels.xml');
@@ -85,6 +114,9 @@ async function run(srcdir: string, workdir: string, lockfile: any) {
         }
         const curatedChannelXpath = XmlXPath.compile('/channels/channel');
         for (const [name, file] of Object.entries(srcfiles)) {
+            if (ishalted(lockdir)) {
+                break;
+            }
             process.stdout.write(`Collecting ${name}`);
             let _date: any;
             const _channels: string[] = [];
@@ -92,6 +124,9 @@ async function run(srcdir: string, workdir: string, lockfile: any) {
             const doc = XmlDocument.fromBuffer(fs.readFileSync(file.fullpath()));
             const curatedChannels = doc.find(curatedChannelXpath);
             for (const channel of curatedChannels) {
+                if (ishalted(lockdir)) {
+                    break;
+                }
                 const site = channel.get('@site')?.content;
                 const xmltvId = channel.get('@xmltv_id')?.content;
                 if (site && xmltvId) {
@@ -107,20 +142,22 @@ async function run(srcdir: string, workdir: string, lockfile: any) {
                     }
                 }
             }
-            const lines = [
-                `<?xml version="1.0" encoding="UTF-8" ?><tv date="${_date}">`,
-                ..._channels,
-                ..._programmes,
-                '</tv>'
-            ];
-            const outfile = path.join(workdir, `${name}.xml`);
-            fs.writeFileSync(outfile, lines.join('\n'));
-            console.log(`\nSaved to ${outfile}...`);
+            if (!ishalted(lockdir)) {
+                const lines = [
+                    `<?xml version="1.0" encoding="UTF-8" ?><tv date="${_date}">`,
+                    ..._channels,
+                    ..._programmes,
+                    '</tv>'
+                ];
+                const outfile = path.join(workdir, `${name}.xml`);
+                fs.writeFileSync(outfile, lines.join('\n'));
+                console.log(`\nSaved to ${outfile}...`);
+            }
         }
     } catch (err) {
         console.error(err);
     }
-    cleanlock(lockfile);
+    cleanlock(lockdir);
 }
 
 const args = process.argv.slice(2);

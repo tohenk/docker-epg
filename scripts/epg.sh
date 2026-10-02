@@ -72,7 +72,7 @@ watch_completion() {
     done
     rm -rf ${WAITING_FILE}
     cd "${BUILD_DIR}/epg/curator" && \
-      $(echo "npm start ${CURATED_DIR}/curating ${OUT_DIR} ${CURATING_FILE}" | xargs) 1>${LOG_DIR}/curator.log 2>&1 &
+      $(echo "npm start ${CURATED_DIR}/curating ${OUT_DIR} ${BUILD_DIR}" | xargs) 1>${LOG_DIR}/curator.log 2>&1 &
   fi
 }
 
