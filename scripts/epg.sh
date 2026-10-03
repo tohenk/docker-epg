@@ -86,10 +86,7 @@ run_grab() {
   local CMD="--output=${OUT}"
   if [ "${SITE:${POS}:4}" = ".xml" ]; then
     CMD="${CMD} --channels=${SITE}"
-    IFS='/' read -ra AA <<< "${SITE}"
-    if [ ${#AA[@]} -gt 1 ]; then
-      SITE=${AA[0]}
-    fi
+    SITE=$(curated_name $(basename ${SITE}))
   else
     CMD="${CMD} --sites=${SITE}"
   fi
@@ -105,6 +102,18 @@ run_grab() {
   mkdir -p ${LOG_DIR}
   $(echo "npm run grab --- ${CMD}" | xargs) 1>${LOG_DIR}/${SITE}.log 2>&1 &
   watch_completion ${SITE} ${LOG_DIR}/${SITE}.log &
+}
+
+curated_name() {
+  SITE=$1
+  LEN=${#SITE}
+  if [ ${LEN} -gt 13 ]; then
+    LEN=$((LEN-13))
+    SITE=${SITE:0:${LEN}}
+  else
+    SITE=curated
+  fi
+  echo ${SITE}
 }
 
 echo "=== $(basename $0) ==="
@@ -174,27 +183,22 @@ if [ -n "${SITES}" ]; then
 fi
 
 if [ ${WITH_CURATED} -eq 1 ]; then
+  TMP_DIR=curated
+  mkdir -p ${TMP_DIR}
   FILES=$(ls ${CURATED_DIR} | grep channels.xml)
   for FILE in ${FILES}; do
     CURATED_FILE=${CURATED_DIR}/${FILE}
     if [ -f "${CURATED_FILE}" ]; then
-      LEN=${#FILE}
-      if [ ${LEN} -gt 13 ]; then
-        LEN=$((LEN-13))
-        SITE=${FILE:0:${LEN}}
-      else
-        SITE=curated
+      SITE=$(curated_name ${FILE})
+      if [ -h ${TMP_DIR}/${FILE} ]; then
+        rm -f ${TMP_DIR}/${FILE}
       fi
-      mkdir -p ${SITE}
-      if [ -h ${SITE}/${FILE} ]; then
-        rm -f ${SITE}/${FILE}
-      fi
-      ln -s ${CURATED_FILE} ${SITE}/${FILE}
+      ln -s ${CURATED_FILE} ${TMP_DIR}/${FILE}
       echo "Building guide for ${SITE} channels..."
       GUIDE_XML=${GUIDE_DIR}/${SITE}.xml
       DAYS=${CURATED_DAYS:-2}
       CONN=${CURATED_CON:-1}
-      run_grab ${GUIDE_XML} ${SITE}/${FILE} NONE ${CONN} ${DAYS}
+      run_grab ${GUIDE_XML} ${TMP_DIR}/${FILE} NONE ${CONN} ${DAYS}
     fi
   done
 fi
